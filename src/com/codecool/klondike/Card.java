@@ -63,8 +63,10 @@ public class Card extends ImageView {
     }
 
     public void moveToPile(Pile destPile) {
+        Pile currentPile = this.getContainingPile();
         this.getContainingPile().getCards().remove(this);
         destPile.addCard(this);
+        if(!currentPile.isEmpty() && currentPile.getTopCard().isFaceDown()){currentPile.getTopCard().flip();}
     }
 
     public void flip() {
