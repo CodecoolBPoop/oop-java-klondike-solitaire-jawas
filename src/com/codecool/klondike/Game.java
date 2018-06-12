@@ -3,6 +3,7 @@ package com.codecool.klondike;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
@@ -106,10 +107,41 @@ public class Game extends Pane {
         card.setOnMouseClicked(onMouseClickedHandler);
     }
 
+//    stockReverseCardsHandler;
+//    private EventHandler<MouseEvent> stockReverseCardsHandler = e -> {
+//        refillStockFromDiscard();
+//    };
+
+
     public void refillStockFromDiscard() {
         //TODO
+        for (int i = 0; i < discardPile.getCards().size(); i++) {
+            stockPile.addCard(stockPile.getCards().get(i));
+        }
+        System.out.println(stockPile.getCards().get(2));
         System.out.println("Stock refilled from discard pile.");
     }
+
+//    public void dealCards() {
+//        //TODO
+//        int cardIndex = 0;
+//        for (int i = 0; i < tableauPiles.size(); i++) {
+//            for (int j = 0; j < i; j++) {
+//                tableauPiles.get(i).addCard(deck.get(cardIndex));
+//                addMouseEventHandlers(deck.get(cardIndex));
+//                getChildren().add(deck.get(cardIndex));
+//                if (j+1==i){deck.get(cardIndex).flip();}
+//                cardIndex++;
+//            }
+//        }
+//        for (int i = cardIndex; i < deck.size(); i++) {
+//            stockPile.addCard(deck.get(i));
+//            addMouseEventHandlers(deck.get(i));
+//            getChildren().add(deck.get(i));
+//        }
+//    }
+
+
 
     public boolean isMoveValid(Card card, Pile destPile) {
         //TODO
