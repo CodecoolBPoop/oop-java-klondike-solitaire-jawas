@@ -79,6 +79,7 @@ public class Game extends Pane {
         Card card = (Card) e.getSource();
         Pile pile = getValidIntersectingPile(card, tableauPiles);
         //TODO
+
         if (pile != null) {
             handleValidMove(card, pile);
         } else {
@@ -188,6 +189,7 @@ public class Game extends Pane {
                 tableauPiles.get(i).addCard(deck.get(cardIndex));
                 addMouseEventHandlers(deck.get(cardIndex));
                 getChildren().add(deck.get(cardIndex));
+                if (j+1==i){deck.get(cardIndex).flip();}
                 cardIndex++;
             }
         }
