@@ -79,9 +79,43 @@ public class Card extends ImageView {
         return "The " + "Rank" + rank + " of " + "Suit" + suit;
     }
 
+    public static String getSuitColor(Suits suit) {
+        return suit.returnColor();
+    }
+
+    public static int getSuitID(Suits suit) {
+        return suit.returnId();
+    }
+
+    public static String getSuitColorById(int id) {
+        String colorById;
+        switch (id) {
+            case 1:
+                colorById = getSuitColor(Suits.HEARTS);
+                break;
+            case 2:
+                colorById = getSuitColor(Suits.DIAMONDS);
+                break;
+            case 3:
+                colorById = getSuitColor(Suits.SPADES);
+                break;
+            case 4:
+                colorById = getSuitColor(Suits.CLUBS);
+                break;
+            default:
+                colorById = "Not a valid suit ID";
+                break;
+        }
+        return colorById;
+    }
+
     public static boolean isOppositeColor(Card card1, Card card2) {
         //TODO
-        return true;
+        int card1SuitId = card1.getSuit();
+        int card2SuitId = card2.getSuit();
+        String card1Color = getSuitColorById(card1SuitId);
+        String card2Color = getSuitColorById(card2SuitId);
+        return !card1Color.equals(card2Color);
     }
 
     public static boolean isSameSuit(Card card1, Card card2) {
@@ -95,6 +129,7 @@ public class Card extends ImageView {
                 result.add(new Card(suit, rank, true));
             }
         }
+        Collections.shuffle(result);
         return result;
     }
 
