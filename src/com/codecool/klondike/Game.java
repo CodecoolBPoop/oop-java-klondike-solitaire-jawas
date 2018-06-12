@@ -181,14 +181,21 @@ public class Game extends Pane {
     }
 
     public void dealCards() {
-        Iterator<Card> deckIterator = deck.iterator();
         //TODO
-        deckIterator.forEachRemaining(card -> {
-            stockPile.addCard(card);
-            addMouseEventHandlers(card);
-            getChildren().add(card);
-        });
-
+        int cardIndex = 0;
+        for (int i = 0; i < tableauPiles.size(); i++) {
+            for (int j = 0; j < i; j++) {
+                tableauPiles.get(i).addCard(deck.get(cardIndex));
+                addMouseEventHandlers(deck.get(cardIndex));
+                getChildren().add(deck.get(cardIndex));
+                cardIndex++;
+            }
+        }
+        for (int i = cardIndex; i < deck.size(); i++) {
+            stockPile.addCard(deck.get(i));
+            addMouseEventHandlers(deck.get(i));
+            getChildren().add(deck.get(i));
+        }
     }
 
     public void setTableBackground(Image tableBackground) {
