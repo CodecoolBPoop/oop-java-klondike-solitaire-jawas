@@ -61,7 +61,7 @@ public class Game extends Pane {
         double offsetX = e.getSceneX() - dragStartX;
         double offsetY = e.getSceneY() - dragStartY;
 
-        draggedCards.clear();
+        draggedCards.clear(); // error on dropping card from tableau pile to foundations
         draggedCards.add(card);
 
         card.getDropShadow().setRadius(20);
@@ -74,7 +74,7 @@ public class Game extends Pane {
     };
 
     private EventHandler<MouseEvent> onMouseReleasedHandler = e -> {
-        if (draggedCards.isEmpty())
+        if (draggedCards.isEmpty()) // error
             return;
         Card card = (Card) e.getSource();
         Pile pile = getValidIntersectingPile(card, tableauPiles);
