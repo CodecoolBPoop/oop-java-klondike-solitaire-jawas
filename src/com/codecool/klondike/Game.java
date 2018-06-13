@@ -2,9 +2,11 @@ package com.codecool.klondike;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
@@ -13,6 +15,7 @@ import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -107,6 +110,7 @@ public class Game extends Pane {
         deck = Card.createNewDeck();
         initPiles();
         dealCards();
+        posButton();
     }
 
     public void addMouseEventHandlers(Card card) {
@@ -242,6 +246,33 @@ public class Game extends Pane {
                 BackgroundRepeat.REPEAT, BackgroundRepeat.REPEAT,
                 BackgroundPosition.CENTER, BackgroundSize.DEFAULT)));
     }
+
+    private EventHandler<ActionEvent> restart = e -> {
+        getChildren().clear();
+        stockPile.clear();
+        foundationPiles.clear();
+        tableauPiles.clear();
+        discardPile.clear();
+        draggedCards.clear();
+        deck = Card.createNewDeck();
+        initPiles();
+        dealCards();
+        posButton();
+
+//        Klondike reStart = new Klondike();
+//        Stage primary = new Stage();
+//        reStart.start(primary);
+    };
+
+
+    public void posButton() {
+        Button btn = new Button("Restart");
+        btn.setLayoutY(5);
+        btn.setLayoutX(5);
+        btn.setOnAction(restart);
+        getChildren().add(btn);
+    }
+
 
 }
 
