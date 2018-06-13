@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
@@ -40,11 +41,45 @@ public class Game extends Pane {
 
     private EventHandler<MouseEvent> onMouseClickedHandler = e -> {
         Card card = (Card) e.getSource();
+
+        // 1. Checking conditions
+        // 1.1. Checking if clicked twice with left mouse button
+        Pile containingPile = card.getContainingPile();
+        boolean isCorrectPileClicked = containingPile.getPileType() == Pile.PileType.TABLEAU || card.getContainingPile().getPileType() == Pile.PileType.DISCARD;
+
+        MouseButton whichButton = e.getButton();
+        boolean isLeftButton = whichButton.toString().equals("PRIMARY");
+
+        Card topCard = card.getContainingPile().getTopCard();
+        boolean isTopCardClicked = topCard.equals(card);
+
+        int numberOfClicks = e.getClickCount();
+        boolean isDoubleClick = numberOfClicks == 2;
+
+        boolean doubleClickCondition = (isCorrectPileClicked && isDoubleClick && isLeftButton && isTopCardClicked);
+
+        // 1.2. Checking foundation pile constraints
+        boolean allowedMove = false;
+        int allowedPileIndex = -1;
+        for (int i = 0; i < foundationPiles.size(); i++) {
+            allowedMove = isMoveValid(card, foundationPiles.get(i));
+            if (allowedMove) {
+//                allowedMove = true;
+                allowedPileIndex = i;
+                break;
+            }
+        }
+
+        // Moving cards
         if (card.getContainingPile().getPileType() == Pile.PileType.STOCK) {
             card.moveToPile(discardPile);
             card.flip();
             card.setMouseTransparent(false);
             System.out.println("Placed " + card + " to the waste.");
+        } else if (doubleClickCondition && allowedMove) {
+            card.moveToPile(foundationPiles.get(allowedPileIndex));
+            System.out.println(whichButton.toString());
+            System.out.println(numberOfClicks);
         }
     };
 
@@ -101,6 +136,7 @@ public class Game extends Pane {
         }
     };
 
+
     public boolean isGameWon() {
         //TODO
         return false;
@@ -125,7 +161,6 @@ public class Game extends Pane {
             Pile tempPile = new Pile(Pile.PileType.STOCK, "Stock", STOCK_GAP);
             for (int i = discardPile.getCards().size() - 1; i >= 0; --i) {
                 discardPile.getCards().get(i).flip();
-//                discardPile.getCards().get(i).getDropShadow().setOffsetX(0);
                 tempPile.addCard(discardPile.getCards().get(i));
             }
             MouseUtil.slideToDest(tempPile.getCards(), stockPile);
