@@ -38,6 +38,31 @@ public class Game extends Pane {
     private static double FOUNDATION_GAP = 0;
     private static double TABLEAU_GAP = 30;
 
+    private boolean canAutoEndingBegin() {
+        // Auto Ending
+        boolean isWinState = false;
+
+        boolean stockIsEmpty = stockPile.isEmpty();
+        boolean discardIsEmpty = discardPile.isEmpty();
+
+        if (stockIsEmpty && discardIsEmpty) {
+            boolean isCardFaceDown;
+            outer:
+            for (Pile tableauPile : tableauPiles) {
+                tableauPile.isEmpty();
+                for (Card tableuCard : tableauPile.getCards()) {
+                    isCardFaceDown = tableuCard.isFaceDown();
+                    if (isCardFaceDown) {
+                        isWinState = true;
+                        break outer;
+                    }
+                }
+            }
+        } else {
+            isWinState = false;
+        }
+        return isWinState;
+    }
 
     private EventHandler<MouseEvent> onMouseClickedHandler = e -> {
         Card card = (Card) e.getSource();
@@ -64,12 +89,10 @@ public class Game extends Pane {
         for (int i = 0; i < foundationPiles.size(); i++) {
             allowedMove = isMoveValid(card, foundationPiles.get(i));
             if (allowedMove) {
-//                allowedMove = true;
                 allowedPileIndex = i;
                 break;
             }
         }
-
         // Moving cards
         if (card.getContainingPile().getPileType() == Pile.PileType.STOCK) {
             card.moveToPile(discardPile);
@@ -78,8 +101,14 @@ public class Game extends Pane {
             System.out.println("Placed " + card + " to the waste.");
         } else if (doubleClickCondition && allowedMove) {
             card.moveToPile(foundationPiles.get(allowedPileIndex));
-            System.out.println(whichButton.toString());
-            System.out.println(numberOfClicks);
+        }
+
+        // AutoEnding:
+        boolean AutoEndingCanBegin = canAutoEndingBegin();
+        if (AutoEndingCanBegin) {
+            // Get topCards from each tableau pile and foundation pile
+            // Compare them with valid move
+            // and move cards with moveToPile after each other
         }
     };
 
@@ -293,10 +322,6 @@ public class Game extends Pane {
         initPiles();
         dealCards();
         posButton();
-
-//        Klondike reStart = new Klondike();
-//        Stage primary = new Stage();
-//        reStart.start(primary);
     };
 
 
@@ -307,7 +332,6 @@ public class Game extends Pane {
         btn.setOnAction(restart);
         getChildren().add(btn);
     }
-
 
 }
 
