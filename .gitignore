@@ -72,3 +72,5 @@ fabric.properties
 .idea/modules.xml
 2TW-klondike-solitaire-jawas.iml
 src/com/codecool/klondike/Main.java
+ignore/
+klondike.iml

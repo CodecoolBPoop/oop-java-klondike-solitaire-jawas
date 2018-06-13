@@ -20,6 +20,7 @@ public class Pile extends Pane {
 
     public Pile(PileType pileType, String name, double cardGap) {
         this.pileType = pileType;
+        this.name = name;
         this.cardGap = cardGap;
     }
 

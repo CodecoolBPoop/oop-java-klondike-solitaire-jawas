@@ -3,6 +3,7 @@ package com.codecool.klondike;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
@@ -78,7 +79,6 @@ public class Game extends Pane {
             return;
         Card card = (Card) e.getSource();
         Pile pile = getValidIntersectingPile(card, tableauPiles);
-        //TODO
 
         if (pile != null) {
             handleValidMove(card, pile);
@@ -107,8 +107,21 @@ public class Game extends Pane {
     }
 
     public void refillStockFromDiscard() {
-        //TODO
-        System.out.println("Stock refilled from discard pile.");
+        if (stockPile.isEmpty()) {
+            Pile tempPile = new Pile(Pile.PileType.STOCK, "Stock", STOCK_GAP);
+            for (int i = discardPile.getCards().size() - 1; i >= 0; --i) {
+                discardPile.getCards().get(i).flip();
+//                discardPile.getCards().get(i).getDropShadow().setOffsetX(0);
+                tempPile.addCard(discardPile.getCards().get(i));
+            }
+            MouseUtil.slideToDest(tempPile.getCards(), stockPile);
+            discardPile = new Pile(Pile.PileType.DISCARD, "Discard", STOCK_GAP);
+            discardPile.setBlurredBackground();
+            discardPile.setLayoutX(285);
+            discardPile.setLayoutY(20);
+            getChildren().add(discardPile);
+            System.out.println("Stock refilled from discard pile.");
+        }
     }
 
     public boolean isMoveValid(Card card, Pile destPile) {
@@ -182,7 +195,6 @@ public class Game extends Pane {
     }
 
     public void dealCards() {
-        //TODO
         int cardIndex = 0;
         for (int i = 0; i < tableauPiles.size(); i++) {
             for (int j = 0; j < i+1; j++) {
@@ -207,3 +219,5 @@ public class Game extends Pane {
     }
 
 }
+
+
