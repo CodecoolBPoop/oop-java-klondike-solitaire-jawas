@@ -217,11 +217,11 @@ public class Game extends Pane {
         //TODO
         int cardIndex = 0;
         for (int i = 0; i < tableauPiles.size(); i++) {
-            for (int j = 0; j < i; j++) {
+            for (int j = 0; j < i+1; j++) {
                 tableauPiles.get(i).addCard(deck.get(cardIndex));
                 addMouseEventHandlers(deck.get(cardIndex));
                 getChildren().add(deck.get(cardIndex));
-                if (j+1==i){deck.get(cardIndex).flip();}
+                if (j==i){deck.get(cardIndex).flip();}
                 cardIndex++;
             }
         }
