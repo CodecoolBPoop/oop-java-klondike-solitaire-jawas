@@ -79,6 +79,11 @@ public class Card extends ImageView {
         return "The " + "Rank" + rank + " of " + "Suit" + suit;
     }
 
+    public static int getRankID(Ranks rank) {
+        return rank.returnId();
+    }
+
+
     public static String getSuitColor(Suits suit) {
         return suit.returnColor();
     }
@@ -110,7 +115,6 @@ public class Card extends ImageView {
     }
 
     public static boolean isOppositeColor(Card card1, Card card2) {
-        //TODO
         int card1SuitId = card1.getSuit();
         int card2SuitId = card2.getSuit();
         String card1Color = getSuitColorById(card1SuitId);
