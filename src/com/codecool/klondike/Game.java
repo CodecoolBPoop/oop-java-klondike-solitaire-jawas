@@ -79,7 +79,6 @@ public class Game extends Pane {
             return;
         Card card = (Card) e.getSource();
         Pile pile = getValidIntersectingPile(card, tableauPiles);
-        //TODO
 
         if (pile != null) {
             handleValidMove(card, pile);
@@ -107,41 +106,23 @@ public class Game extends Pane {
         card.setOnMouseClicked(onMouseClickedHandler);
     }
 
-//    stockReverseCardsHandler;
-//    private EventHandler<MouseEvent> stockReverseCardsHandler = e -> {
-//        refillStockFromDiscard();
-//    };
-
-
     public void refillStockFromDiscard() {
-        //TODO
-        for (int i = 0; i < discardPile.getCards().size(); i++) {
-            stockPile.addCard(stockPile.getCards().get(i));
+        if (stockPile.isEmpty()) {
+            Pile tempPile = new Pile(Pile.PileType.STOCK, "Stock", STOCK_GAP);
+            for (int i = discardPile.getCards().size() - 1; i >= 0; --i) {
+                discardPile.getCards().get(i).flip();
+//                discardPile.getCards().get(i).getDropShadow().setOffsetX(0);
+                tempPile.addCard(discardPile.getCards().get(i));
+            }
+            MouseUtil.slideToDest(tempPile.getCards(), stockPile);
+            discardPile = new Pile(Pile.PileType.DISCARD, "Discard", STOCK_GAP);
+            discardPile.setBlurredBackground();
+            discardPile.setLayoutX(285);
+            discardPile.setLayoutY(20);
+            getChildren().add(discardPile);
+            System.out.println("Stock refilled from discard pile.");
         }
-        System.out.println(stockPile.getCards().get(2));
-        System.out.println("Stock refilled from discard pile.");
     }
-
-//    public void dealCards() {
-//        //TODO
-//        int cardIndex = 0;
-//        for (int i = 0; i < tableauPiles.size(); i++) {
-//            for (int j = 0; j < i; j++) {
-//                tableauPiles.get(i).addCard(deck.get(cardIndex));
-//                addMouseEventHandlers(deck.get(cardIndex));
-//                getChildren().add(deck.get(cardIndex));
-//                if (j+1==i){deck.get(cardIndex).flip();}
-//                cardIndex++;
-//            }
-//        }
-//        for (int i = cardIndex; i < deck.size(); i++) {
-//            stockPile.addCard(deck.get(i));
-//            addMouseEventHandlers(deck.get(i));
-//            getChildren().add(deck.get(i));
-//        }
-//    }
-
-
 
     public boolean isMoveValid(Card card, Pile destPile) {
         //TODO
@@ -214,7 +195,6 @@ public class Game extends Pane {
     }
 
     public void dealCards() {
-        //TODO
         int cardIndex = 0;
         for (int i = 0; i < tableauPiles.size(); i++) {
             for (int j = 0; j < i+1; j++) {
@@ -239,3 +219,5 @@ public class Game extends Pane {
     }
 
 }
+
+
