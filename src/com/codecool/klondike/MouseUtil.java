@@ -14,6 +14,7 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MouseUtil {
@@ -31,7 +32,7 @@ public class MouseUtil {
                 });
     }
 
-    public static void slideToDest(List<Card> cardsToSlide, Pile destPile) {
+    public static void slideToDest(List<Card> cardsToSlide, Pile destPile, Game thisGame) {
         if (cardsToSlide == null)
             return;
         double destCardGap = destPile.getCardGap();
@@ -55,6 +56,7 @@ public class MouseUtil {
                     targetY + ((destPile.isEmpty() ? i : i + 1) * destCardGap), Duration.millis(150),
                     e -> {
                         currentCard.moveToPile(destPile);
+                        currentCard.isGameWon(thisGame);
                         currentCard.getDropShadow().setRadius(2);
                         currentCard.getDropShadow().setOffsetX(0);
                         currentCard.getDropShadow().setOffsetY(0);
