@@ -120,7 +120,7 @@ public class Game extends Pane {
 
 
     private boolean canAutoEndingBegin() {
-        // Auto Ending can begin when stock pile and discard pile is empty
+        // Auto Ending can begin when stock pile and discard pile is empty and all cards in tableau pile is face up
         boolean isWinState = true;
         if (stockPile.isEmpty() && discardPile.isEmpty()) {
             outer:
@@ -423,5 +423,3 @@ public class Game extends Pane {
     }
 
 }
-
-
