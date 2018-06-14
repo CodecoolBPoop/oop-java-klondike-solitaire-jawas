@@ -1,11 +1,8 @@
 package com.codecool.klondike;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
@@ -16,10 +13,8 @@ import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class Game extends Pane {
@@ -41,7 +36,7 @@ public class Game extends Pane {
     private EventHandler<MouseEvent> onMouseClickedHandler = e -> {
         Card card = (Card) e.getSource();
 
-        // 1. Checking conditions
+        // 1. Checking conditions for double click move
         // 1.1. Checking if clicked twice with left mouse button
         Pile containingPile = card.getContainingPile();
         boolean isCorrectPileClicked = containingPile.getPileType() == Pile.PileType.TABLEAU || card.getContainingPile().getPileType() == Pile.PileType.DISCARD;
@@ -57,7 +52,7 @@ public class Game extends Pane {
 
         boolean doubleClickCondition = (isCorrectPileClicked && isDoubleClick && isLeftButton && isTopCardClicked);
 
-        // 1.2. Checking foundation pile constraints
+        // 1.2. Checking foundation pile constraints for double click move
         boolean allowedMove = false;
         int allowedPileIndex = -1;
         for (int i = 0; i < foundationPiles.size(); i++) {
@@ -67,25 +62,28 @@ public class Game extends Pane {
                 break;
             }
         }
-        // Moving cards
+
+        Game thisGame = this;
+
+        // Moving cards: if with single click, else if with double click
         if (card.getContainingPile().getPileType() == Pile.PileType.STOCK) {
             card.moveToPile(discardPile);
             card.flip();
             card.setMouseTransparent(false);
             System.out.println("Placed " + card + " to the waste.");
         } else if (doubleClickCondition && allowedMove) {
-            card.moveToPile(foundationPiles.get(allowedPileIndex));
-            Game thisGame = this;
+            List<Card> listOfCurrentCard = new ArrayList<>();
+            listOfCurrentCard.add(card);
+            MouseUtil.slideToDest(listOfCurrentCard, foundationPiles.get(allowedPileIndex), thisGame);
             card.isGameWon(thisGame);
 
         }
 
-        // AutoEnding:
-        boolean AutoEndingCanBegin = canAutoEndingBegin();
-        if (AutoEndingCanBegin) {
+        // Automatic ending; single click triggered:
+        boolean autoEndingCanBegin = canAutoEndingBegin();
+        if (autoEndingCanBegin) {
             boolean isNotWonYet = true;
             while (isNotWonYet) {
-                // Validate move
                 outer:
                 for (int i = 0 ;i < foundationPiles.size(); i++) {
                     Pile foundationPile = foundationPiles.get(i);
@@ -93,10 +91,7 @@ public class Game extends Pane {
                         if (!tableauPiles.get(j).isEmpty()) {
                             Card topTableauCard = tableauPiles.get(j).getTopCard();
                             if (!tableauPiles.get(j).isEmpty() && isMoveValid(topTableauCard, foundationPile)) {
-                                // and move cards with moveToPile after each other
                                 topTableauCard.moveToPile(foundationPile);
-                                // sol1.: just move them with movetopile
-                                // sol2.: create myDraggedCards and rewrite handleValid move
                                 break outer;
                             }
                         }
@@ -104,12 +99,10 @@ public class Game extends Pane {
                 }
                 isNotWonYet = autoWinCondition();
             }
-            Game thisGame = this;
             card.isGameWon(thisGame);
         }
     };
 
-    // TODO !!!!!!!!!!!!!!!!!!!!!!!!!!! ------------------- !!!!!!!!!!!!!!!!!!!!!!!!!!!!
     private boolean autoWinCondition() {
         int[] pilesLengths = new int[4];
         for (int i = 0 ;i < foundationPiles.size(); i++) {
@@ -147,8 +140,6 @@ public class Game extends Pane {
         return isWinState;
     }
 
-    // TODO !!!!!!!!!!!!!!!!!!!!!!!!!!! ------------------- !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // TODO: cheat deal cards
     public void dealWithCheat() {
         // move 39 cards to foundation piles
         int cardIndex = 0;
@@ -218,12 +209,11 @@ public class Game extends Pane {
     };
 
     private EventHandler<MouseEvent> onMouseReleasedHandler = e -> {
-        if (draggedCards.isEmpty()) // error
+        if (draggedCards.isEmpty())
             return;
         Card card = (Card) e.getSource();
         Pile pile = getValidIntersectingPile(card, tableauPiles);
 
-        //TODO
         if (pile == null) {pile = getValidIntersectingPile(card, foundationPiles);}
         if (pile != null) {
             handleValidMove(card, pile);
@@ -236,10 +226,9 @@ public class Game extends Pane {
     public Game() {
         deck = Card.createNewDeck();
         initPiles();
-        // TODO: CHEAT MODE: RESET LATER
-        dealWithCheat();
-//        dealCards();
+        dealCards();
         posButton();
+        cheatButton();
     }
 
     public void addMouseEventHandlers(Card card) {
@@ -268,7 +257,6 @@ public class Game extends Pane {
     }
 
     public boolean isMoveValid(Card card, Pile destPile) {
-        //TODO
         if (destPile.getPileType().equals(Pile.PileType.TABLEAU)){
             if (destPile.getTopCard() == null && card.getRank() == 13){
                 return true;
@@ -386,10 +374,9 @@ public class Game extends Pane {
         draggedCards.clear();
         deck = Card.createNewDeck();
         initPiles();
-        // TODO: CHEAT MODE: RESET LATER
-        dealWithCheat();
-//        dealCards();
+        dealCards();
         posButton();
+        cheatButton();
     };
 
 
@@ -410,6 +397,31 @@ public class Game extends Pane {
         listOfPiles.add(stockPile);
         return listOfPiles;
     }
+
+    private EventHandler<ActionEvent> restartWithCheat = e -> {
+        getChildren().clear();
+        stockPile.clear();
+        foundationPiles.clear();
+        tableauPiles.clear();
+        discardPile.clear();
+        draggedCards.clear();
+        Card.toggleCheat(false);
+        deck = Card.createNewDeck();
+        initPiles();
+        dealWithCheat();
+        posButton();
+        cheatButton();
+    };
+
+
+    public void cheatButton() {
+        Button btn = new Button("Cheat restart");
+        btn.setLayoutY(700);
+        btn.setLayoutX(5);
+        btn.setOnAction(restartWithCheat);
+        getChildren().add(btn);
+    }
+
 }
 
 
