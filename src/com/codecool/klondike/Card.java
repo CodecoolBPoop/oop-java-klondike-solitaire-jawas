@@ -69,6 +69,13 @@ public class Card extends ImageView {
         if(!currentPile.isEmpty() && currentPile.getPileType().equals(Pile.PileType.TABLEAU) && currentPile.getTopCard().isFaceDown()){currentPile.getTopCard().flip();}
     }
 
+    public boolean isGameWon(List<Pile> listOfPiles) {
+        //TODO
+        for (Pile piles:listOfPiles) {if (!piles.isEmpty()){return false;}}
+        System.out.println("GG");
+        return true;
+    }
+
     public void flip() {
         faceDown = !faceDown;
         setImage(faceDown ? backFace : frontFace);

@@ -136,12 +136,6 @@ public class Game extends Pane {
         }
     };
 
-
-    public boolean isGameWon() {
-        //TODO
-        return false;
-    }
-
     public Game() {
         deck = Card.createNewDeck();
         initPiles();
@@ -163,7 +157,7 @@ public class Game extends Pane {
                 discardPile.getCards().get(i).flip();
                 tempPile.addCard(discardPile.getCards().get(i));
             }
-            MouseUtil.slideToDest(tempPile.getCards(), stockPile);
+            MouseUtil.slideToDest(tempPile.getCards(), stockPile, new ArrayList<>());
             discardPile = new Pile(Pile.PileType.DISCARD, "Discard", STOCK_GAP);
             discardPile.setBlurredBackground();
             discardPile.setLayoutX(285);
@@ -221,7 +215,13 @@ public class Game extends Pane {
             msg = String.format("Placed %s to %s.", card, destPile.getTopCard());
         }
         System.out.println(msg);
-        MouseUtil.slideToDest(draggedCards, destPile);
+        List<Pile> listOfPiles = new ArrayList<>();
+        for (Pile tableauPile: tableauPiles) {
+            listOfPiles.add(tableauPile);
+        }
+        listOfPiles.add(discardPile);
+        listOfPiles.add(stockPile);
+        MouseUtil.slideToDest(draggedCards, destPile, listOfPiles);
         draggedCards.clear();
     }
 
