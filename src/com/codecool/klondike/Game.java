@@ -84,7 +84,8 @@ public class Game extends Pane {
             }
             listOfPiles.add(discardPile);
             listOfPiles.add(stockPile);
-            card.isGameWon(listOfPiles);
+            Game thisGame = this;
+            card.isGameWon(thisGame);
         }
     };
 
@@ -161,7 +162,8 @@ public class Game extends Pane {
                 discardPile.getCards().get(i).flip();
                 tempPile.addCard(discardPile.getCards().get(i));
             }
-            MouseUtil.slideToDest(tempPile.getCards(), stockPile, new ArrayList<>());
+            Game thisGame = this;
+            MouseUtil.slideToDest(tempPile.getCards(), stockPile, thisGame);
             discardPile = new Pile(Pile.PileType.DISCARD, "Discard", STOCK_GAP);
             discardPile.setBlurredBackground();
             discardPile.setLayoutX(285);
@@ -219,13 +221,8 @@ public class Game extends Pane {
             msg = String.format("Placed %s to %s.", card, destPile.getTopCard());
         }
         System.out.println(msg);
-        List<Pile> listOfPiles = new ArrayList<>();
-        for (Pile tableauPile: tableauPiles) {
-            listOfPiles.add(tableauPile);
-        }
-        listOfPiles.add(discardPile);
-        listOfPiles.add(stockPile);
-        MouseUtil.slideToDest(draggedCards, destPile, listOfPiles);
+        Game thisGame = this;
+        MouseUtil.slideToDest(draggedCards, destPile, thisGame);
         draggedCards.clear();
     }
 
@@ -312,7 +309,15 @@ public class Game extends Pane {
         getChildren().add(btn);
     }
 
-
+    public List<Pile> getListOfPiles() {
+        List<Pile> listOfPiles = new ArrayList<>();
+        for (Pile tableauPile: tableauPiles) {
+            listOfPiles.add(tableauPile);
+        }
+        listOfPiles.add(discardPile);
+        listOfPiles.add(stockPile);
+        return listOfPiles;
+    }
 }
 
 

@@ -69,11 +69,15 @@ public class Card extends ImageView {
         if(!currentPile.isEmpty() && currentPile.getPileType().equals(Pile.PileType.TABLEAU) && currentPile.getTopCard().isFaceDown()){currentPile.getTopCard().flip();}
     }
 
-    public boolean isGameWon(List<Pile> listOfPiles) {
+    public boolean isGameWon(Game thisGame) {
         //TODO
-        if (listOfPiles.size()==0){return false;}
+        List<Pile> listOfPiles = thisGame.getListOfPiles();
         for (Pile piles:listOfPiles) {if (!piles.isEmpty()){return false;}}
-        System.out.println("GG");
+        Image image = new Image("win/win.png");
+        ImageView imageView = new ImageView(image);
+        imageView.setX(550);
+        imageView.setY(300);
+        thisGame.getChildren().add(imageView);;
         return true;
     }
 
