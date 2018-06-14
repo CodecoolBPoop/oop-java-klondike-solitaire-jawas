@@ -70,7 +70,6 @@ public class Card extends ImageView {
     }
 
     public boolean isGameWon(Game thisGame) {
-        //TODO
         List<Pile> listOfPiles = thisGame.getListOfPiles();
         for (Pile piles:listOfPiles) {if (!piles.isEmpty()){return false;}}
         Image image = new Image("win/win.png");
@@ -138,6 +137,13 @@ public class Card extends ImageView {
         return card1.getSuit() == card2.getSuit();
     }
 
+    public static boolean cheatOff = true;
+
+    public static boolean toggleCheat(boolean off) {
+        cheatOff = off;
+        return cheatOff;
+    }
+
     public static List<Card> createNewDeck() {
         List<Card> result = new ArrayList<>();
         for (int suit = 1; suit < 5; suit++) {
@@ -145,8 +151,9 @@ public class Card extends ImageView {
                 result.add(new Card(suit, rank, true));
             }
         }
-        // TODO: CHEAT MODE: RESET LATER
-//        Collections.shuffle(result);
+        if (cheatOff) {
+            Collections.shuffle(result);
+        }
         return result;
     }
 
