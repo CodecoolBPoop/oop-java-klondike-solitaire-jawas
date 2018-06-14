@@ -153,6 +153,7 @@ public class Card extends ImageView {
         }
         if (cheatOff) {
             Collections.shuffle(result);
+            Collections.shuffle(result);
         }
         return result;
     }
