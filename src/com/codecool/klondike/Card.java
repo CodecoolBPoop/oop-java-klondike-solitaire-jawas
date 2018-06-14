@@ -133,7 +133,8 @@ public class Card extends ImageView {
                 result.add(new Card(suit, rank, true));
             }
         }
-        Collections.shuffle(result);
+        // TODO: CHEAT MODE: RESET LATER
+//        Collections.shuffle(result);
         return result;
     }
 

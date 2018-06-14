@@ -87,13 +87,15 @@ public class Game extends Pane {
                 for (int i = 0 ;i < foundationPiles.size(); i++) {
                     Pile foundationPile = foundationPiles.get(i);
                     for (int j = 0 ;j < tableauPiles.size(); j++) {
-                        Card topTableauCard = tableauPiles.get(j).getTopCard();
-                        if (isMoveValid(topTableauCard, foundationPile)) {
-                            // and move cards with moveToPile after each other
-                            topTableauCard.moveToPile(foundationPile);
-                            // sol1.: just move them with movetopile
-                            // sol2.: create myDraggedCards and rewrite handleValid move
-                            break outer;
+                        if (!tableauPiles.get(j).isEmpty()) {
+                            Card topTableauCard = tableauPiles.get(j).getTopCard();
+                            if (!tableauPiles.get(j).isEmpty() && isMoveValid(topTableauCard, foundationPile)) {
+                                // and move cards with moveToPile after each other
+                                topTableauCard.moveToPile(foundationPile);
+                                // sol1.: just move them with movetopile
+                                // sol2.: create myDraggedCards and rewrite handleValid move
+                                break outer;
+                            }
                         }
                     }
                 }
@@ -103,8 +105,24 @@ public class Game extends Pane {
     };
 
     // TODO !!!!!!!!!!!!!!!!!!!!!!!!!!! ------------------- !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    private boolean autoWinCondition() {
+        int[] pilesLengths = new int[4];
+        for (int i = 0 ;i < foundationPiles.size(); i++) {
+            pilesLengths[i] = foundationPiles.get(i).getCards().size();
+        }
+        boolean isNotWonYet = false;
+        for (int length : pilesLengths) {
+            if (length != 13) {
+                isNotWonYet = true;
+                break;
+            }
+        }
+        return isNotWonYet;
+    };
+
+
     private boolean canAutoEndingBegin() {
-        // Auto Ending
+        // Auto Ending can begin when stock pile and discard pile is empty
         boolean isWinState = true;
         if (stockPile.isEmpty() && discardPile.isEmpty()) {
             outer:
@@ -124,20 +142,39 @@ public class Game extends Pane {
         return isWinState;
     }
 
-    private boolean autoWinCondition() {
-        int[] pilesLengths = new int[4];
-        for (int i = 0 ;i < foundationPiles.size(); i++) {
-            pilesLengths[i] = foundationPiles.get(i).getCards().size();
-        }
-        boolean isNotWonYet = false;
-        for (int length : pilesLengths) {
-            if (length != 13) {
-                isNotWonYet = true;
-                break;
+    // TODO !!!!!!!!!!!!!!!!!!!!!!!!!!! ------------------- !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // TODO: cheat deal cards
+    public void dealWithCheat() {
+        // move 39 cards to foundation piles
+        int cardIndex = 0;
+        for (int i = 0; i < foundationPiles.size() - 1; i++) {
+            for (int j = 0; j < 13; j++) {
+                foundationPiles.get(i).addCard(deck.get(cardIndex));
+                addMouseEventHandlers(deck.get(cardIndex));
+                getChildren().add(deck.get(cardIndex));
+                deck.get(cardIndex).flip();
+                cardIndex++;
             }
         }
-        return isNotWonYet;
-    };
+        // move 6 cards to stock pile
+        int CARD_INDEX_START1 = cardIndex;
+        for (int i = CARD_INDEX_START1; i < CARD_INDEX_START1 + 6; i++) {
+            stockPile.addCard(deck.get(i));
+            addMouseEventHandlers(deck.get(i));
+            getChildren().add(deck.get(i));
+            cardIndex++;
+        }
+        // move 7 cards to tableau: one to each pile
+        int CARD_INDEX_START2 = cardIndex;
+        for (int i = 0; i < 7; i++) {
+            tableauPiles.get(i).addCard(deck.get(cardIndex));
+            addMouseEventHandlers(deck.get(cardIndex));
+            getChildren().add(deck.get(cardIndex));
+            deck.get(cardIndex).flip();
+            cardIndex++;
+        }
+
+    }
 
     private EventHandler<MouseEvent> stockReverseCardsHandler = e -> {
         refillStockFromDiscard();
@@ -201,7 +238,9 @@ public class Game extends Pane {
     public Game() {
         deck = Card.createNewDeck();
         initPiles();
-        dealCards();
+        // TODO: CHEAT MODE: RESET LATER
+        dealWithCheat();
+//        dealCards();
         posButton();
     }
 
@@ -347,7 +386,9 @@ public class Game extends Pane {
         draggedCards.clear();
         deck = Card.createNewDeck();
         initPiles();
-        dealCards();
+        // TODO: CHEAT MODE: RESET LATER
+        dealWithCheat();
+//        dealCards();
         posButton();
     };
 
