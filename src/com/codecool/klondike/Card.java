@@ -71,7 +71,11 @@ public class Card extends ImageView {
 
     public boolean isGameWon(List<Pile> listOfPiles) {
         //TODO
-        for (Pile piles:listOfPiles) {if (!piles.isEmpty()){return false;}}
+        if (listOfPiles.size()==0){return false;}
+        for (Pile piles:listOfPiles) {if (!piles.isEmpty()){
+            System.out.println("bement#2");
+            System.out.println(piles.getCards());
+            return false;}}
         System.out.println("GG");
         return true;
     }

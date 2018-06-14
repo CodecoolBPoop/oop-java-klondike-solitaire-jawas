@@ -80,6 +80,13 @@ public class Game extends Pane {
             card.moveToPile(foundationPiles.get(allowedPileIndex));
             System.out.println(whichButton.toString());
             System.out.println(numberOfClicks);
+            List<Pile> listOfPiles = new ArrayList<>();
+            for (Pile tableauPile: tableauPiles) {
+                listOfPiles.add(tableauPile);
+            }
+            listOfPiles.add(discardPile);
+            listOfPiles.add(stockPile);
+            card.isGameWon(listOfPiles);
         }
     };
 
