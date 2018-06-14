@@ -78,8 +78,6 @@ public class Game extends Pane {
             System.out.println("Placed " + card + " to the waste.");
         } else if (doubleClickCondition && allowedMove) {
             card.moveToPile(foundationPiles.get(allowedPileIndex));
-            System.out.println(whichButton.toString());
-            System.out.println(numberOfClicks);
             List<Pile> listOfPiles = new ArrayList<>();
             for (Pile tableauPile: tableauPiles) {
                 listOfPiles.add(tableauPile);
@@ -114,7 +112,6 @@ public class Game extends Pane {
                 }
             }
         }
-        System.out.println(draggedCards);
         for (Card draggedCard:draggedCards
              ) {
             draggedCard.getDropShadow().setRadius(20);
