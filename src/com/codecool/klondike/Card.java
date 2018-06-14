@@ -69,6 +69,18 @@ public class Card extends ImageView {
         if(!currentPile.isEmpty() && currentPile.getPileType().equals(Pile.PileType.TABLEAU) && currentPile.getTopCard().isFaceDown()){currentPile.getTopCard().flip();}
     }
 
+    public boolean isGameWon(Game thisGame) {
+        //TODO
+        List<Pile> listOfPiles = thisGame.getListOfPiles();
+        for (Pile piles:listOfPiles) {if (!piles.isEmpty()){return false;}}
+        Image image = new Image("win/win.png");
+        ImageView imageView = new ImageView(image);
+        imageView.setX(550);
+        imageView.setY(300);
+        thisGame.getChildren().add(imageView);;
+        return true;
+    }
+
     public void flip() {
         faceDown = !faceDown;
         setImage(faceDown ? backFace : frontFace);
@@ -133,7 +145,8 @@ public class Card extends ImageView {
                 result.add(new Card(suit, rank, true));
             }
         }
-        Collections.shuffle(result);
+        // TODO: CHEAT MODE: RESET LATER
+//        Collections.shuffle(result);
         return result;
     }
 
