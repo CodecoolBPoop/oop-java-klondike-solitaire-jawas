@@ -38,32 +38,6 @@ public class Game extends Pane {
     private static double FOUNDATION_GAP = 0;
     private static double TABLEAU_GAP = 30;
 
-    private boolean canAutoEndingBegin() {
-        // Auto Ending
-        boolean isWinState = false;
-
-        boolean stockIsEmpty = stockPile.isEmpty();
-        boolean discardIsEmpty = discardPile.isEmpty();
-
-        if (stockIsEmpty && discardIsEmpty) {
-            boolean isCardFaceDown;
-            outer:
-            for (Pile tableauPile : tableauPiles) {
-                tableauPile.isEmpty();
-                for (Card tableuCard : tableauPile.getCards()) {
-                    isCardFaceDown = tableuCard.isFaceDown();
-                    if (isCardFaceDown) {
-                        isWinState = true;
-                        break outer;
-                    }
-                }
-            }
-        } else {
-            isWinState = false;
-        }
-        return isWinState;
-    }
-
     private EventHandler<MouseEvent> onMouseClickedHandler = e -> {
         Card card = (Card) e.getSource();
 
@@ -106,10 +80,63 @@ public class Game extends Pane {
         // AutoEnding:
         boolean AutoEndingCanBegin = canAutoEndingBegin();
         if (AutoEndingCanBegin) {
-            // Get topCards from each tableau pile and foundation pile
-            // Compare them with valid move
-            // and move cards with moveToPile after each other
+            boolean isNotWonYet = true;
+            while (isNotWonYet) {
+                // Validate move
+                outer:
+                for (int i = 0 ;i < foundationPiles.size(); i++) {
+                    Pile foundationPile = foundationPiles.get(i);
+                    for (int j = 0 ;j < tableauPiles.size(); j++) {
+                        Card topTableauCard = tableauPiles.get(j).getTopCard();
+                        if (isMoveValid(topTableauCard, foundationPile)) {
+                            // and move cards with moveToPile after each other
+                            topTableauCard.moveToPile(foundationPile);
+                            // sol1.: just move them with movetopile
+                            // sol2.: create myDraggedCards and rewrite handleValid move
+                            break outer;
+                        }
+                    }
+                }
+                isNotWonYet = autoWinCondition();
+            }
         }
+    };
+
+    // TODO !!!!!!!!!!!!!!!!!!!!!!!!!!! ------------------- !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    private boolean canAutoEndingBegin() {
+        // Auto Ending
+        boolean isWinState = true;
+        if (stockPile.isEmpty() && discardPile.isEmpty()) {
+            outer:
+            for (Pile tableauPile : tableauPiles) {
+                if (!tableauPile.isEmpty()) {
+                    for (Card tableauCard : tableauPile.getCards()) {
+                        if (tableauCard.isFaceDown()) {
+                            isWinState = false;
+                            break outer;
+                        }
+                    }
+                }
+            }
+        } else {
+            isWinState = false;
+        }
+        return isWinState;
+    }
+
+    private boolean autoWinCondition() {
+        int[] pilesLengths = new int[4];
+        for (int i = 0 ;i < foundationPiles.size(); i++) {
+            pilesLengths[i] = foundationPiles.get(i).getCards().size();
+        }
+        boolean isNotWonYet = false;
+        for (int length : pilesLengths) {
+            if (length != 13) {
+                isNotWonYet = true;
+                break;
+            }
+        }
+        return isNotWonYet;
     };
 
     private EventHandler<MouseEvent> stockReverseCardsHandler = e -> {
