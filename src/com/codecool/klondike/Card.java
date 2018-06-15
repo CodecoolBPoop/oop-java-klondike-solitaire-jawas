@@ -137,7 +137,7 @@ public class Card extends ImageView {
         return card1.getSuit() == card2.getSuit();
     }
 
-    public static boolean cheatOff = true;
+    public static boolean cheatOff;
 
     public static boolean toggleCheat(boolean off) {
         cheatOff = off;
@@ -152,6 +152,7 @@ public class Card extends ImageView {
             }
         }
         if (cheatOff) {
+            Collections.shuffle(result);
             Collections.shuffle(result);
         }
         return result;
