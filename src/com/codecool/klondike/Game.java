@@ -264,6 +264,7 @@ public class Game extends Pane {
             discardPile.setLayoutX(285);
             discardPile.setLayoutY(20);
             getChildren().add(discardPile);
+            lastMoves.clear();
             System.out.println("Stock refilled from discard pile.");
         }
     }
@@ -409,33 +410,35 @@ public class Game extends Pane {
     private EventHandler<ActionEvent> undo = e -> {
 
 
-            if(!lastMoves.isEmpty()) {
-                Stack lastMove = lastMoves.get(lastMoves.size()-1);
-                lastMoves.remove(lastMoves.size()-1);
+        if (!lastMoves.isEmpty()) {
+            Stack lastMove = lastMoves.get(lastMoves.size() - 1);
+            lastMoves.remove(lastMoves.size() - 1);
 
-                Pile pile = (Pile) lastMove.pop();
-                List<Card> cards = (List<Card> ) lastMove.peek();
+            Pile pile = (Pile) lastMove.pop();
+            List<Card> cards = (List<Card>) lastMove.peek();
 
-                for(int i = 0; i < cards.size(); i++) {
+            for (int i = 0; i < cards.size(); i++) {
 
-                    if(pile.getTopCard() != null && cards.get(i).getContainingPile().getPileType() == Pile.PileType.TABLEAU) {
+                if (pile.getTopCard() != null && cards.get(i).getContainingPile().getPileType() == Pile.PileType.TABLEAU) {
+
+                    if(pile.getTopCard().isFaceDown()) {
                         pile.getTopCard().flip();
                     }
 
-
-                    cards.get(i).moveToPile(pile);
-
-                    if(cards.get(i).getContainingPile().getPileType() == Pile.PileType.STOCK && discardPile.getCards().size() > 0) {
+                    if(cards.get(i).isFaceDown()) {
                         pile.getTopCard().flip();
                     }
 
 
                 }
 
+                cards.get(i).moveToPile(pile);
 
+                if (cards.get(i).getContainingPile().getPileType() == Pile.PileType.STOCK) {
+                    pile.getTopCard().flip();
+                }
             }
-
-
+        }
 
     };
 
@@ -469,7 +472,8 @@ public class Game extends Pane {
         deck = Card.createNewDeck();
         initPiles();
         dealWithCheat();
-        posButton();
+        posButton("Undo", 50,5, this.undo);
+        posButton("Restart", 5,5, this.restart);
         cheatButton();
     };
 
