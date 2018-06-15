@@ -16,6 +16,7 @@ import javafx.scene.layout.Pane;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 public class Game extends Pane {
 
@@ -32,6 +33,8 @@ public class Game extends Pane {
     private static double STOCK_GAP = 1;
     private static double FOUNDATION_GAP = 0;
     private static double TABLEAU_GAP = 30;
+
+    private List<Stack> lastMoves = new ArrayList<>();
 
     private EventHandler<MouseEvent> onMouseClickedHandler = e -> {
         Card card = (Card) e.getSource();
@@ -67,6 +70,14 @@ public class Game extends Pane {
 
         // Moving cards: if with single click, else if with double click
         if (card.getContainingPile().getPileType() == Pile.PileType.STOCK) {
+            Stack storeItem = new Stack();
+
+            List<Card> cards = new ArrayList<>();
+            cards.add(card);
+            storeItem.push(cards);
+            storeItem.push(card.getContainingPile());
+            lastMoves.add(storeItem);
+
             card.moveToPile(discardPile);
             card.flip();
             card.setMouseTransparent(false);
@@ -228,7 +239,8 @@ public class Game extends Pane {
         deck = Card.createNewDeck();
         initPiles();
         dealCards();
-        posButton();
+        posButton("Undo", 50,5, this.undo);
+        posButton("Restart", 5,5, this.restart);
         cheatButton();
     }
 
@@ -253,6 +265,7 @@ public class Game extends Pane {
             discardPile.setLayoutX(285);
             discardPile.setLayoutY(20);
             getChildren().add(discardPile);
+            lastMoves.clear();
             System.out.println("Stock refilled from discard pile.");
         }
     }
@@ -303,6 +316,19 @@ public class Game extends Pane {
         } else {
             msg = String.format("Placed %s to %s.", card, destPile.getTopCard());
         }
+
+        Stack storeItem = new Stack();
+        List<Card> cards = new ArrayList<>();;
+
+        for(Card item : draggedCards) {
+            cards.add(item);
+        }
+
+
+        storeItem.push(cards);
+        storeItem.push(card.getContainingPile());
+        lastMoves.add(storeItem);
+
         System.out.println(msg);
         Game thisGame = this;
         MouseUtil.slideToDest(draggedCards, destPile, thisGame);
@@ -375,18 +401,56 @@ public class Game extends Pane {
         draggedCards.clear();
         Card.toggleCheat(true);
         deck = Card.createNewDeck();
+        lastMoves.clear();
         initPiles();
         dealCards();
-        posButton();
+        posButton("Undo", 50,5, this.undo);
+        posButton("Restart", 5,5, this.restart);
         cheatButton();
+
+    };
+
+    private EventHandler<ActionEvent> undo = e -> {
+
+
+        if (!lastMoves.isEmpty()) {
+            Stack lastMove = lastMoves.get(lastMoves.size() - 1);
+            lastMoves.remove(lastMoves.size() - 1);
+
+            Pile pile = (Pile) lastMove.pop();
+            List<Card> cards = (List<Card>) lastMove.peek();
+
+            for (int i = 0; i < cards.size(); i++) {
+
+                if (pile.getTopCard() != null && cards.get(i).getContainingPile().getPileType() == Pile.PileType.TABLEAU) {
+
+                    if(pile.getTopCard().isFaceDown()) {
+                        pile.getTopCard().flip();
+                    }
+
+                    if(cards.get(i).isFaceDown()) {
+                        pile.getTopCard().flip();
+                    }
+
+
+                }
+
+                cards.get(i).moveToPile(pile);
+
+                if (cards.get(i).getContainingPile().getPileType() == Pile.PileType.STOCK) {
+                    pile.getTopCard().flip();
+                }
+            }
+        }
+
     };
 
 
-    public void posButton() {
-        Button btn = new Button("Restart");
-        btn.setLayoutY(5);
-        btn.setLayoutX(5);
-        btn.setOnAction(restart);
+    public void posButton(String value, int y, int x, EventHandler<ActionEvent> event) {
+        Button btn = new Button(value);
+        btn.setLayoutY(y);
+        btn.setLayoutX(x);
+        btn.setOnAction(event);
         getChildren().add(btn);
     }
 
@@ -411,7 +475,8 @@ public class Game extends Pane {
         deck = Card.createNewDeck();
         initPiles();
         dealWithCheat();
-        posButton();
+        posButton("Undo", 50,5, this.undo);
+        posButton("Restart", 5,5, this.restart);
         cheatButton();
     };
 
