@@ -224,6 +224,7 @@ public class Game extends Pane {
     };
 
     public Game() {
+        Card.toggleCheat(true);
         deck = Card.createNewDeck();
         initPiles();
         dealCards();
@@ -372,6 +373,7 @@ public class Game extends Pane {
         tableauPiles.clear();
         discardPile.clear();
         draggedCards.clear();
+        Card.toggleCheat(true);
         deck = Card.createNewDeck();
         initPiles();
         dealCards();
