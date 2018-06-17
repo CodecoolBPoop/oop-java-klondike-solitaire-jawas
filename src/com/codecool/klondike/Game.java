@@ -18,6 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
+/**
+ * @author Attila Kincsei akincsei@gmail.com
+ * @version 1.0
+ * @since 0.0
+ */
 public class Game extends Pane {
 
     private List<Card> deck = new ArrayList<>();
@@ -251,6 +256,15 @@ public class Game extends Pane {
         card.setOnMouseClicked(onMouseClickedHandler);
     }
 
+    /**
+     * This is the callback function of the event handler "stockReverseCardsHandler".
+     * It moves the cards from the discard pile to the stock pile if the stock pile is empty
+     * and the user clicks into the shadow area of the stock pile
+     * @param "no parameters"
+     * @return none
+     * @throws "nothing"
+     * @see "stockReverseCardsHandler"
+     */
     public void refillStockFromDiscard() {
         if (stockPile.isEmpty()) {
             Pile tempPile = new Pile(Pile.PileType.STOCK, "Stock", STOCK_GAP);

@@ -68,6 +68,7 @@ crashlytics-build.properties
 fabric.properties
 
 # Ati's gitignore files:
+.idea/
 .idea/misc.xml
 .idea/modules.xml
 2TW-klondike-solitaire-jawas.iml
