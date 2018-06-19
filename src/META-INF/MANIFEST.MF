@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Class-Path: /home/akincsei/IntelliJ/2TW-klondike-solitaire-jawas/src
+Main-Class: com.codecool.klondike.Klondike
+

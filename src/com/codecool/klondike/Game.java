@@ -2,6 +2,7 @@ package com.codecool.klondike;
 
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -41,39 +42,49 @@ public class Game extends Pane {
 
     private List<Stack> lastMoves = new ArrayList<>();
 
-    private EventHandler<MouseEvent> onMouseClickedHandler = e -> {
-        Card card = (Card) e.getSource();
+    // TODO: CONSULTATION - MY CODE STARTS FROM HERE ------------------------------------------
 
+    private int allowedPileIndex = -1; // TODO: BEST PRACTICE? SHOULD I INITIALIZE IT? SHOULD I MAKE IT A LOCAL VARIABLE? NOT REALLY CLEAN CODE
+
+    private boolean allowedAutoMove(Card doubleClicked, MouseEvent click) {
         // 1. Checking conditions for double click move
         // 1.1. Checking if clicked twice with left mouse button
-        Pile containingPile = card.getContainingPile();
-        boolean isCorrectPileClicked = containingPile.getPileType() == Pile.PileType.TABLEAU || card.getContainingPile().getPileType() == Pile.PileType.DISCARD;
+        Pile containingPile = doubleClicked.getContainingPile();
+        boolean isCorrectPileClicked = containingPile.getPileType() == Pile.PileType.TABLEAU || doubleClicked.getContainingPile().getPileType() == Pile.PileType.DISCARD;
 
-        MouseButton whichButton = e.getButton();
+        MouseButton whichButton = click.getButton();
         boolean isLeftButton = whichButton.toString().equals("PRIMARY");
 
-        Card topCard = card.getContainingPile().getTopCard();
-        boolean isTopCardClicked = topCard.equals(card);
+        Card topCard = doubleClicked.getContainingPile().getTopCard();
+        boolean isTopCardClicked = topCard.equals(doubleClicked);
 
-        int numberOfClicks = e.getClickCount();
+        int numberOfClicks = click.getClickCount();
         boolean isDoubleClick = numberOfClicks == 2;
 
         boolean doubleClickCondition = (isCorrectPileClicked && isDoubleClick && isLeftButton && isTopCardClicked);
 
         // 1.2. Checking foundation pile constraints for double click move
         boolean allowedMove = false;
-        int allowedPileIndex = -1;
+//        allowedPileIndex = -1;
         for (int i = 0; i < foundationPiles.size(); i++) {
-            allowedMove = isMoveValid(card, foundationPiles.get(i));
+            allowedMove = isMoveValid(doubleClicked, foundationPiles.get(i));
             if (allowedMove) {
                 allowedPileIndex = i;
                 break;
             }
         }
 
+        return (doubleClickCondition && allowedMove);
+    };
+
+    private EventHandler<MouseEvent> onMouseClickedHandler = e -> {
+        Card card = (Card) e.getSource();
         Game thisGame = this;
 
-        // Moving cards: if with single click, else if with double click
+        // Moving cards: if - with single click, else if - with double click
+        // TODO: CONSULTATION - HOW CAN I PASS EVENT AS A PARAMETER?
+        boolean autoMoveAllowed = allowedAutoMove(card, e);
+
         if (card.getContainingPile().getPileType() == Pile.PileType.STOCK) {
             Stack storeItem = new Stack();
 
@@ -87,7 +98,7 @@ public class Game extends Pane {
             card.flip();
             card.setMouseTransparent(false);
             System.out.println("Placed " + card + " to the waste.");
-        } else if (doubleClickCondition && allowedMove) {
+        } else if (autoMoveAllowed) {
             List<Card> listOfCurrentCard = new ArrayList<>();
             listOfCurrentCard.add(card);
             MouseUtil.slideToDest(listOfCurrentCard, foundationPiles.get(allowedPileIndex), thisGame);
@@ -95,45 +106,10 @@ public class Game extends Pane {
 
         }
 
+        // TODO: CONSULTATION: DONE SOME REFACTORING
         // Automatic ending; single click triggered:
-        boolean autoEndingCanBegin = canAutoEndingBegin();
-        if (autoEndingCanBegin) {
-            boolean isNotWonYet = true;
-            while (isNotWonYet) {
-                outer:
-                for (int i = 0 ;i < foundationPiles.size(); i++) {
-                    Pile foundationPile = foundationPiles.get(i);
-                    for (int j = 0 ;j < tableauPiles.size(); j++) {
-                        if (!tableauPiles.get(j).isEmpty()) {
-                            Card topTableauCard = tableauPiles.get(j).getTopCard();
-                            if (!tableauPiles.get(j).isEmpty() && isMoveValid(topTableauCard, foundationPile)) {
-                                topTableauCard.moveToPile(foundationPile);
-                                break outer;
-                            }
-                        }
-                    }
-                }
-                isNotWonYet = autoWinCondition();
-            }
-            card.isGameWon(thisGame);
-        }
+        autoEnd(card, thisGame);
     };
-
-    private boolean autoWinCondition() {
-        int[] pilesLengths = new int[4];
-        for (int i = 0 ;i < foundationPiles.size(); i++) {
-            pilesLengths[i] = foundationPiles.get(i).getCards().size();
-        }
-        boolean isNotWonYet = false;
-        for (int length : pilesLengths) {
-            if (length != 13) {
-                isNotWonYet = true;
-                break;
-            }
-        }
-        return isNotWonYet;
-    };
-
 
     private boolean canAutoEndingBegin() {
         // Auto Ending can begin when stock pile and discard pile is empty and all cards in tableau pile is face up
@@ -154,17 +130,61 @@ public class Game extends Pane {
             isWinState = false;
         }
         return isWinState;
+    };
+
+    private boolean autoWinCondition() {
+        int[] pilesLengths = new int[4];
+        for (int i = 0 ;i < foundationPiles.size(); i++) {
+            pilesLengths[i] = foundationPiles.get(i).getCards().size();
+        }
+        boolean isNotWonYet = false;
+        for (int length : pilesLengths) {
+            if (length != 13) {
+                isNotWonYet = true;
+                break;
+            }
+        }
+        return isNotWonYet;
+    };
+
+    private void autoEnd(Card autoEndCard, Game autoEndGame) {
+        boolean autoEndingCanBegin = canAutoEndingBegin();
+        if (autoEndingCanBegin) {
+            boolean isNotWonYet = true;
+            while (isNotWonYet) {
+                outer:
+                for (int i = 0 ;i < foundationPiles.size(); i++) {
+                    Pile foundationPile = foundationPiles.get(i);
+                    for (int j = 0 ;j < tableauPiles.size(); j++) {
+                        if (!tableauPiles.get(j).isEmpty()) {
+                            Card topTableauCard = tableauPiles.get(j).getTopCard();
+                            if (!tableauPiles.get(j).isEmpty() && isMoveValid(topTableauCard, foundationPile)) {
+                                topTableauCard.moveToPile(foundationPile);
+                                break outer;
+                            }
+                        }
+                    }
+                }
+                isNotWonYet = autoWinCondition();
+            }
+            autoEndCard.isGameWon(autoEndGame);
+        }
+    };
+
+    private void fillWithCards(List listOfPiles, int forIndex, int cardIdx) {
+        listOfPiles.get(forIndex).addCard(deck.get(cardIdx)); // TODO: WORKS, BUT HOW CAN I TURN ADDCARD() BLACK
+        addMouseEventHandlers(deck.get(cardIdx));
+        getChildren().add(deck.get(cardIdx));
+        deck.get(cardIdx).flip();
+
     }
 
-    public void dealWithCheat() {
+    private void dealWithCheat() { // TODO: CONSULTATION
         // move 39 cards to foundation piles
         int cardIndex = 0;
         for (int i = 0; i < foundationPiles.size() - 1; i++) {
             for (int j = 0; j < 13; j++) {
-                foundationPiles.get(i).addCard(deck.get(cardIndex));
-                addMouseEventHandlers(deck.get(cardIndex));
-                getChildren().add(deck.get(cardIndex));
-                deck.get(cardIndex).flip();
+                fillWithCards(foundationPiles, i, cardIndex);
                 cardIndex++;
             }
         }
@@ -177,16 +197,14 @@ public class Game extends Pane {
             cardIndex++;
         }
         // move 7 cards to tableau: one to each pile
-        int CARD_INDEX_START2 = cardIndex;
         for (int i = 0; i < 7; i++) {
-            tableauPiles.get(i).addCard(deck.get(cardIndex));
-            addMouseEventHandlers(deck.get(cardIndex));
-            getChildren().add(deck.get(cardIndex));
-            deck.get(cardIndex).flip();
+            fillWithCards(tableauPiles, i, cardIndex);
             cardIndex++;
         }
 
-    }
+    };
+
+    // TODO: CONSULTATION - MY CODE ENDS HERE ------------------------------------------
 
     private EventHandler<MouseEvent> stockReverseCardsHandler = e -> {
         refillStockFromDiscard();
@@ -256,6 +274,7 @@ public class Game extends Pane {
         card.setOnMouseClicked(onMouseClickedHandler);
     }
 
+
     /**
      * This is the callback function of the event handler "stockReverseCardsHandler".
      * It moves the cards from the discard pile to the stock pile if the stock pile is empty
@@ -265,6 +284,7 @@ public class Game extends Pane {
      * @throws "nothing"
      * @see "stockReverseCardsHandler"
      */
+    // TODO: CONSULTATION
     public void refillStockFromDiscard() {
         if (stockPile.isEmpty()) {
             Pile tempPile = new Pile(Pile.PileType.STOCK, "Stock", STOCK_GAP);
