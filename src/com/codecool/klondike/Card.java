@@ -63,8 +63,21 @@ public class Card extends ImageView {
     }
 
     public void moveToPile(Pile destPile) {
+        Pile currentPile = this.getContainingPile();
         this.getContainingPile().getCards().remove(this);
         destPile.addCard(this);
+        if(!currentPile.isEmpty() && currentPile.getPileType().equals(Pile.PileType.TABLEAU) && currentPile.getTopCard().isFaceDown()){currentPile.getTopCard().flip();}
+    }
+
+    public boolean isGameWon(Game thisGame) {
+        List<Pile> listOfPiles = thisGame.getListOfPiles();
+        for (Pile piles:listOfPiles) {if (!piles.isEmpty()){return false;}}
+        Image image = new Image("win/win.png");
+        ImageView imageView = new ImageView(image);
+        imageView.setX(550);
+        imageView.setY(300);
+        thisGame.getChildren().add(imageView);;
+        return true;
     }
 
     public void flip() {
@@ -77,13 +90,58 @@ public class Card extends ImageView {
         return "The " + "Rank" + rank + " of " + "Suit" + suit;
     }
 
+    public static int getRankID(Ranks rank) {
+        return rank.returnId();
+    }
+
+
+    public static String getSuitColor(Suits suit) {
+        return suit.returnColor();
+    }
+
+    public static int getSuitID(Suits suit) {
+        return suit.returnId();
+    }
+
+    public static String getSuitColorById(int id) {
+        String colorById;
+        switch (id) {
+            case 1:
+                colorById = getSuitColor(Suits.HEARTS);
+                break;
+            case 2:
+                colorById = getSuitColor(Suits.DIAMONDS);
+                break;
+            case 3:
+                colorById = getSuitColor(Suits.SPADES);
+                break;
+            case 4:
+                colorById = getSuitColor(Suits.CLUBS);
+                break;
+            default:
+                colorById = "Not a valid suit ID";
+                break;
+        }
+        return colorById;
+    }
+
     public static boolean isOppositeColor(Card card1, Card card2) {
-        //TODO
-        return true;
+        int card1SuitId = card1.getSuit();
+        int card2SuitId = card2.getSuit();
+        String card1Color = getSuitColorById(card1SuitId);
+        String card2Color = getSuitColorById(card2SuitId);
+        return !card1Color.equals(card2Color);
     }
 
     public static boolean isSameSuit(Card card1, Card card2) {
         return card1.getSuit() == card2.getSuit();
+    }
+
+    public static boolean cheatOff;
+
+    public static boolean toggleCheat(boolean off) {
+        cheatOff = off;
+        return cheatOff;
     }
 
     public static List<Card> createNewDeck() {
@@ -93,7 +151,10 @@ public class Card extends ImageView {
                 result.add(new Card(suit, rank, true));
             }
         }
-        Collections.shuffle(result);
+        if (cheatOff) {
+            Collections.shuffle(result);
+            Collections.shuffle(result);
+        }
         return result;
     }
 
